@@ -82,7 +82,7 @@
 
 ### Opción 1: Descargar el APK Directo (Recomendada para usuarios)
 1. Ve a la sección de **Releases** de este repositorio en GitHub:
-   👉 `https://github.com/<tu-usuario>/<tu-repositorio>/releases`
+   👉 `https://github.com/acaceres25/DocuPyme/releases`
 2. Descarga el archivo `app-debug.apk` o el instalador más reciente.
 3. En tu teléfono Android o emulador, abre el archivo descargado y autoriza la instalación desde fuentes desconocidas.
 4. ¡Listo! Abre **DocuPyme** y comienza a gestionar tus documentos.
@@ -91,13 +91,13 @@
 
 #### Requisitos Previos:
 - **Android Studio Ladybug** (o versión más reciente con soporte para Compose BOM 2024+).
-- **JDK 17** o superior.
+- **JDK 21** y Android SDK Platform 36.1.
 - Dispositivo físico o Emulador Android con **Android 7.0 (API 24)** o superior.
 
 #### Pasos de Instalación:
 ```bash
 # 1. Clonar el repositorio
-git clone https://github.com/<tu-usuario>/DocuPyme.git
+git clone https://github.com/acaceres25/DocuPyme.git
 
 # 2. Entrar al directorio
 cd DocuPyme
@@ -160,3 +160,9 @@ Este proyecto está bajo la Licencia [MIT](LICENSE) — siéntete libre de utili
 <p align="center">
   Desarrollado con ❤️ para impulsar la transformación digital de las micro y pequeñas empresas.
 </p>
+
+## Compilación y estructura mantenible
+
+Consulta [la guía de arquitectura y compilación](docs/ARCHITECTURE.md) para conocer la organización por pantallas, los requisitos, la firma y las limitaciones del modo de demostración.
+
+GitHub Actions ejecuta las pruebas, lint y genera una APK de depuración descargable desde los artefactos de la ejecución.

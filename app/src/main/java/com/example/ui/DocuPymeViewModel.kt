@@ -1,61 +1,17 @@
 package com.example.ui
 
 import android.app.Application
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
-import android.os.Build
-import androidx.core.app.NotificationCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.ai.ChatMessage
 import com.example.data.ai.ChatbotService
-import com.example.data.ai.ClassificationResult
 import com.example.data.ai.CompanyContext
 import com.example.data.ai.DocumentClassifierService
 import com.example.data.local.*
 import com.example.data.repository.DocuPymeRepository
+import com.example.platform.DocumentNotifier
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-
-enum class Screen {
-    AUTH,
-    DASHBOARD,
-    SEARCH,
-    DOCUMENTS,
-    FOLDER_CONTENT,
-    DOCUMENT_DETAIL,
-    UPLOAD_DOCUMENT,
-    SHARE_DOCUMENT,
-    DUPLICATE_FILES,
-    TRASH,
-    REPORTS,
-    USERS_PERMISSIONS,
-    BACKUP_SECURITY,
-    EDIT_PROFILE,
-    NOTIFICATIONS,
-    AUDIT_LOG,
-    CHATBOT,
-    DOCUMENT_VIEWER
-}
-
-data class UploadUiState(
-    val fileName: String = "",
-    val extractedText: String = "",
-    val mimeType: String = "application/pdf",
-    val sizeBytes: Long = 1048576L,
-    val isClassifying: Boolean = false,
-    val classification: ClassificationResult? = null,
-    val selectedCategory: String = "Facturas",
-    val selectedFolderId: String = "f_facturas",
-    val customTags: String = "",
-    val customDescription: String = "",
-    val currentStep: Int = 0, // 0: Select, 1: Reading/Extracting, 2: AI Analyzing, 3: Review & Confirm
-    val isSaved: Boolean = false,
-    val errorMessage: String? = null
-)
 
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class DocuPymeViewModel(application: Application) : AndroidViewModel(application) {
@@ -646,42 +602,11 @@ class DocuPymeViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun triggerSystemAlertNotification(title: String, message: String) {
-        val appContext = getApplication<Application>()
-        val notificationManager = appContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val channelId = "docupyme_alerts_channel"
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                "Alertas de Vencimiento DocuPyme",
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = "Notificaciones de vencimiento de contratos, documentos tributarios y pólizas"
-                enableVibration(true)
-            }
-            notificationManager.createNotificationChannel(channel)
-        }
-
-        val intent = appContext.packageManager.getLaunchIntentForPackage(appContext.packageName)
-        val pendingIntent = PendingIntent.getActivity(
-            appContext,
-            0,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
+        val delivered = DocumentNotifier(getApplication<Application>()).show(title, message)
+        showFeedback(
+            if (delivered) "Notificación del sistema emitida: $title"
+            else "Activa las notificaciones de DocuPyme en Ajustes para recibir alertas."
         )
-
-        val notification = NotificationCompat.Builder(appContext, channelId)
-            .setSmallIcon(android.R.drawable.ic_dialog_alert)
-            .setContentTitle(title)
-            .setContentText(message)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
-            .setContentIntent(pendingIntent)
-            .build()
-
-        notificationManager.notify((System.currentTimeMillis() % 10000).toInt(), notification)
-        showFeedback("Notificación del sistema emitida: $title")
     }
 
     fun exportReportAsPdf() {
